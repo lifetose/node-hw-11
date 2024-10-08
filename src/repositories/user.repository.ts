@@ -7,19 +7,22 @@ import { User } from "../models/user.model";
 class UserRepository {
   public async getList(query: IUserListQuery): Promise<[IUser[], number]> {
     const filterObj: FilterQuery<IUser> = { isVerified: false };
+
     if (query.search) {
       filterObj.name = { $regex: query.search, $options: "i" };
-      // filterObj.$or = [
-      //   { name: { $regex: query.search, $options: "i" } },
-      //   { email: { $regex: query.search, $options: "i" } },
-      // ];
     }
 
-    // TODO - Add sorting
+    const sortObj: FilterQuery<IUser> = {};
+
+    if (query.orderBy) {
+      const sortOrder = query.order === "desc" ? -1 : 1;
+      sortObj[query.orderBy] = sortOrder;
+    }
 
     const skip = query.limit * (query.page - 1);
+
     return await Promise.all([
-      User.find(filterObj).limit(query.limit).skip(skip),
+      User.find(filterObj).sort(sortObj).limit(query.limit).skip(skip),
       User.countDocuments(filterObj),
     ]);
   }
