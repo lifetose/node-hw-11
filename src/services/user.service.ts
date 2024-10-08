@@ -15,7 +15,6 @@ import { s3Service } from "./s3.service";
 class UserService {
   public async getList(query: IUserListQuery): Promise<IUserListResponse> {
     const [entities, total] = await userRepository.getList(query);
-    console.log(entities, total);
 
     return userPresenter.toListResDto(entities, total, query);
   }
